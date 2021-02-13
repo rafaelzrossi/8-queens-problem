@@ -1,0 +1,108 @@
+*{
+	border: 0px;
+	margin: 0px;
+}
+
+html, body, #root, .App {
+  height: 100%;
+}
+
+
+
+
+
+
+
+
+
+
+
+.ui{
+	width: 100%;
+	height: 7%;
+
+	background-color: antiquewhite;
+
+	display: flex;
+	flex-direction: row;
+
+	align-items: center;
+	justify-content: center;
+}
+
+span{
+	font-size: 18px;
+
+	position: absolute;
+	left: 15px;
+}
+
+button{
+	height: 28px;
+	border-radius: 20px;
+
+	background-color: gray;
+	color:white;
+}
+
+.solve{
+	margin-left: 15px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.content{
+	width: 100%;
+	height: 93%;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+
+}
+
+.board{
+	width: 600px;
+	height: 600px;
+
+	background-color: blueviolet;
+
+	display: grid;
+	grid-template-columns: repeat(8, 12.5%);
+	grid-template-rows: repeat(8, 12.5%);
+}
+
+.pos{
+	background-color: #7d694c;
+
+	cursor: pointer;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.pos:nth-child(1), .pos:nth-child(3), .pos:nth-child(5), .pos:nth-child(7),
+.pos:nth-child(10), .pos:nth-child(12), .pos:nth-child(14), .pos:nth-child(16),
+.pos:nth-child(17), .pos:nth-child(19), .pos:nth-child(21), .pos:nth-child(23),
+.pos:nth-child(26), .pos:nth-child(28), .pos:nth-child(30), .pos:nth-child(32),
+.pos:nth-child(33), .pos:nth-child(35), .pos:nth-child(37), .pos:nth-child(39),
+.pos:nth-child(42), .pos:nth-child(44), .pos:nth-child(46), .pos:nth-child(48),
+.pos:nth-child(49), .pos:nth-child(51), .pos:nth-child(53), .pos:nth-child(55),
+.pos:nth-child(58), .pos:nth-child(60), .pos:nth-child(62), .pos:nth-child(64){
+  background-color: #441a03;
+}
