@@ -8,8 +8,8 @@ import './App.css';
 import queen from './images/chess_queen.svg'
 
 function App() {
-  const [queensLeft, setQueensLeft] = useState<number>(8);
-  const [board, setBoard] = useState<number[][]>(
+	const [queensLeft, setQueensLeft] = useState<number>(8);
+	const [boardState, setBoardState] = useState<number[][]>(
     [[0,0,0,0,0,0,0,0],
      [0,0,0,0,0,0,0,0],
      [0,0,0,0,0,0,0,0],
@@ -19,231 +19,244 @@ function App() {
      [0,0,0,0,0,0,0,0],
      [0,0,0,0,0,0,0,0]]
   );
+	const [queenList, setQueenList] = useState<string[]>([]);
+	
+
+	function getCoordinates(id: string){
+		const n = Number(id);
+  	const row = Math.floor((n-1)/8);
+  	const col = (n-1)%8;
+
+		return [row, col];
+	}
+
+	function getState(id: string){
+		//Calcula as Coordenadas da Posição.
+		const [row, col] = getCoordinates(id);
+
+		//Fetch State
+		const state = boardState[row][col];
+
+		//Return State
+		return state;
+	}
+
+	function updateBoardUI(id: string, action: string){
+		let pos = document.getElementById(id);
+
+		if(action === 'add'){
+			pos!.innerHTML = '<img src='+queen+' alt="Queen"/>'
+		}
+		else if(action === 'remove'){
+			pos!.innerHTML = '';
+		}
+	}
+
+	function updateQueenList(id: string, action: string){
+		let temp = queenList;
+
+		if(action === 'add'){
+			temp.push(id);
+			setQueenList(temp);
+		}
+		else if(action === 'remove'){
+			const index = temp.indexOf(id);
+			temp.splice(index, 1);
+			setQueenList(temp);
+		}
+	}
+
+	function clearBoard(){
+		setBoardState(
+			[[0,0,0,0,0,0,0,0],
+     [0,0,0,0,0,0,0,0],
+     [0,0,0,0,0,0,0,0],
+     [0,0,0,0,0,0,0,0],
+     [0,0,0,0,0,0,0,0],
+     [0,0,0,0,0,0,0,0],
+     [0,0,0,0,0,0,0,0],
+     [0,0,0,0,0,0,0,0]]
+		);
+	}
+
+	function rowAttack(row: number, col: number, tempBoard: number[][]){
+		//Percorre todas as Colunas do tabuleiro para a linha row
+		//caso a coluna seja diferente da que a peça está colocada, o valor é definido
+		//como 2.
+
+		for(let i = 0; i <= 7; i++){
+			if(tempBoard[row][i] === 0)
+				tempBoard[row][i] = 2;
+		}
+	}
+
+	function colAttack(row: number, col: number, tempBoard: number[][]){
+		//Percorre todas as linha do tabuleiro para a coluna col
+		//caso aquela posição esteja marcada com 0, atualiza ela.
+
+		for(let i = 0; i <= 7; i++){
+			if(tempBoard[i][col] === 0){
+				tempBoard[i][col] = 2;
+			}
+		}
+	}
+
+	function diagAttack(row: number, col: number, tempBoard: number[][]){
+		/*
+			lu: left-up
+			ld: left-down
+			ru: right-up
+			rd: right-down
+		*/
+
+		let row_lu = row - 1, col_lu = col - 1;
+		let row_ld = row + 1, col_ld = col - 1;
+		let row_ru = row - 1, col_ru = col + 1;
+		let row_rd = row + 1, col_rd = col + 1;
+
+
+		while(row_lu >= 0 && col_lu >= 0){
+			if(tempBoard[row_lu][col_lu] === 0)
+				tempBoard[row_lu][col_lu] = 2;
+
+			row_lu--;
+			col_lu--;
+		}
+
+
+		while(row_ld <= 7 && col_ld >= 0){
+			if(tempBoard[row_ld][col_ld] === 0)
+				tempBoard[row_ld][col_ld] = 2;
+
+			row_ld++;
+			col_ld--;
+		}
+
+
+		while(row_ru >= 0 && col_ru <= 7){
+			if(tempBoard[row_ru][col_ru] === 0)
+				tempBoard[row_ru][col_ru] = 2;
+
+			row_ru--;
+			col_ru++;
+		}
+
+
+		while(row_rd <= 7 && col_rd <= 7){
+			if(tempBoard[row_rd][col_rd] === 0)
+				tempBoard[row_rd][col_rd] = 2;
+
+			row_rd++;
+			col_rd++;
+		}
+	}
+
+	function updateBoardState(){
+		clearBoard();
+		let tempBoard = boardState;
+		
+		queenList.forEach(id => {
+			const [row, col] = getCoordinates(id);
+
+			tempBoard[row][col] = 1; // Atualiza Tabuleiro onde a peça está.
+
+			colAttack(row, col, tempBoard);
+			rowAttack(row, col, tempBoard);
+			diagAttack(row, col, tempBoard);
+
+			setBoardState(tempBoard);
+
+			//console.log(tempBoard);
+		})
+	}
+
+	function adicionaPeça(id: string){
+		updateBoardUI(id, 'add');
+
+		updateQueenList(id, 'add');
+
+		updateBoardState();
+
+		setQueensLeft(queensLeft - 1);
+	}
+
+	function removePeça(id: string){
+		updateBoardUI(id, 'remove');
+
+		updateQueenList(id, 'remove');
+
+		updateBoardState();
+
+		setQueensLeft(queensLeft + 1);
+
+	}
+
+	function alerta(){
+		alert("Movimento Inválido! Essa posição pode ser atacada por alguma Rainha.")
+	}
+
+	
+
+
+	function play(id: string){
+		const state = getState(id);
+
+		if(state === 0 && queensLeft > 0)
+			adicionaPeça(id);
+
+		else if(state === 1)
+			removePeça(id);
+
+		else if(state === 2){
+			alerta();
+		}
 
 
 
-
-
-  function getCoordinates(id: string){
-    //Encontra a posição do id no tabuleiro
-    const n = Number(id);
-    const row = Math.floor((n-1)/8);
-    const col = (n-1)%8;
-  
-    return [row, col];
-  }
-
-
-
-  function getPositionValue(id: string){
-    let [d1, d2] = getCoordinates(id);
-
-    return board[d1][d2];
-  }
-
-
-
-
-
-  function rowAttack(row: number, col: number, entryValue: number){
-    let b = board;
-
-    /*
-      Se a peça está sendo adicionada no tabuleiro, percorre a linha toda onde a peça está
-      sendo posicionada, e nas posições que estiverem vazias, marca com 2.
-    */
-    if(entryValue === 1){
-      for(let i = 0; i < 8; i++){
-        if(b[row][i] === 0)
-          b[row][i] = 2;
-      }
-    }
-
-    /*
-      Caso a peça está sendo removida, a linha toda é recebe 0.
-    */
-    else {
-      for(let i = 0; i < 8; i++){
-          b[row][i] = 0;
-      }
-    }
-
-    setBoard(b);
-  }
-
-  function colAttack(row: number, col: number, entryValue: number){
-    let b = board;
-
-    /*
-      Se a peça está sendo adicionada no tabuleiro, percorre a coluna toda onde a peça está
-      sendo posicionada, e nas posições que estiverem vazias, marca com 2.
-    */
-    if(entryValue === 1){
-      for(let i = 0; i < 8; i++){
-        if(b[i][col] === 0)
-          b[i][col] = 2;
-      }
-    }
-
-    /*
-      Caso a peça está sendo removida, a coluna toda é recebe 0.
-    */
-    else{
-      for(let i = 0; i < 8; i++){
-        if(i !== row)
-          b[i][col] = 0;
-      }
-    }
-
-    setBoard(b);
-  }
-
-  function diagAttack(row: number, col: number, entryValue: number){
-    let b = board;
-
-    let row_up_left = row - 1, col_up_left = col - 1;
-    let row_up_right = row - 1, col_up_right = col + 1;
-    
-    let row_dw_left = row + 1, col_dw_left = col - 1;
-    let row_dw_right = row + 1, col_dw_right = col + 1;
-
-
-    // If entryValue = 0 -> Assign 0 Freeing the Space.
-    // If entryValue = 1 -> Assign 2 Meaning that the position can be attacked by a queen.
-    const assign = entryValue * 2;
-
-    while(row_up_left >= 0 && col_up_left >= 0){
-      b[row_up_left][col_up_left] = assign;
-
-      row_up_left--;
-      col_up_left--;
-    }
-
-    while(row_up_right >= 0 && col_up_right <= 7){
-      b[row_up_right][col_up_right] = assign;
-
-      row_up_right--;
-      col_up_right++;
-    }
-
-    while(row_dw_left <= 7 && col_dw_left >= 0){
-      b[row_dw_left][col_dw_left] = assign;
-
-      row_dw_left++;
-      col_dw_left--;
-    }
-
-    while(row_dw_right <= 7 && col_dw_right <= 7){
-      b[row_dw_right][col_dw_right] = assign;
-
-      row_dw_right++;
-      col_dw_right++;
-    }
-
-    setBoard(b);
-  }
-
-
-
-
-
-  function updateBoard(id: string, entryValue: number){
-    let [d1, d2] = getCoordinates(id);
-
-
-    //atualiza o tabuleiro com o valor informado.
-    let tempBoard = board;
-    tempBoard[d1][d2] = entryValue;
-    setBoard(tempBoard);
-    
-    rowAttack(d1, d2, entryValue);
-    colAttack(d1, d2, entryValue);
-    diagAttack(d1, d2, entryValue);
-
-    console.log(d1,d2);
-  }
-
-
-
-  function play(id: string){
-    const currentPosition = getPositionValue(id);
-
-    // Se posição estiver Disponível.
-    if(currentPosition === 0 && queensLeft > 0){
-      // Adiciona o Elemento na Pagina
-      document.getElementById(id)!.innerHTML = '<img src='+queen+' alt="Queen"/>'
-
-      updateBoard(id, 1);
-
-      setQueensLeft(queensLeft - 1);
-
-      if(queensLeft - 1 === 0){
-        alert("Parabéns! Você solucionou o Problema das 8 Rainhas");
-      }
-    }
-
-    // Se posição estiver Ocupada.
-    else if(currentPosition === 1){
-      // Adiciona o Elemento na Pagina
-      document.getElementById(id)!.innerHTML = ''
-
-      updateBoard(id, 0);
-
-      setQueensLeft(queensLeft + 1);
-    }
-
-
-    // Alerta o usuário que o local é inválido para posionar uma nova peça.
-    else if(currentPosition === 2){
-      alert("Posição Inválida! Essa é uma posição que pode ser Atacada!")
-    }
-  }
-
+	}
 
 
 
 
   function newGame(){
-    let id = "";
-    let v = 0;
+		clearBoard();
 
-    for(let i = 1; i <= 64; i++){
-      id = String(i);
-      document.getElementById(id)!.innerHTML = ''; 
-    }
-    // Limpa os dados do Tabuleiro
-    setBoard(
-      [[0,0,0,0,0,0,0,0],
-       [0,0,0,0,0,0,0,0],
-       [0,0,0,0,0,0,0,0],
-       [0,0,0,0,0,0,0,0],
-       [0,0,0,0,0,0,0,0],
-       [0,0,0,0,0,0,0,0],
-       [0,0,0,0,0,0,0,0],
-       [0,0,0,0,0,0,0,0]]
-    );
+		queenList.forEach(x => {
+			document.getElementById(x)!.innerHTML = '';
+		})
 
-    setQueensLeft(8);
-  }
+		setQueenList([]);
+		setQueensLeft(8);
+		cl();
+	}
+  
 
+	function red(){
+		let state = 0;
+		let id = '';
 
+		for(let i = 1; i <= 64; i++){
+			id = String(i);
+			state = getState(id);
 
-
+			if(state !== 0){
+				document.getElementById(id)!.style.backgroundColor = "red";
+			}
+		}
+	}
 
   function cl(){
-    for(let i = 1; i <= 64; i++){
-      let id = String(i);
-      document.getElementById(id)!.style.backgroundColor = "";
-    }
-  }
+		let id = '';
 
-  function red(){
-    for(let i = 1; i <= 64; i++){
-      let id = String(i);
-      if(getPositionValue(id) !== 0)
-        document.getElementById(id)!.style.backgroundColor = "red";
-    }
-  }
+		for(let i = 1; i <= 64; i++){
+			id = String(i);
+			document.getElementById(id)!.style.backgroundColor = '';
+		}
+	}
+
+	function logBoard(){
+		console.log(boardState);
+	}
 
 
 
@@ -256,11 +269,10 @@ function App() {
         <span>Peças Restantes: {queensLeft}</span>
         
         <button className="new-game" onClick={() => newGame()}>Novo Jogo</button>
-        <button className="solve" onClick={() => {}}>Solucionar Jogo</button>
+        <button className="solve" onClick={() => {logBoard()}}>Solucionar Jogo</button>
         <button className="solve" onClick={() => red()}>VERMELHO</button>
         <button className="solve" onClick={() => cl()}>CLEAR</button>
 		  </div>  
-
 
       <div className="content">
         <div className="board">
