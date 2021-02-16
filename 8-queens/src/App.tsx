@@ -1,5 +1,11 @@
-import { SSL_OP_EPHEMERAL_RSA } from 'constants';
-import { stringify } from 'querystring';
+/**
+ * TODO:
+ * 	1. Implementar todas as atualizações de Estado utilizando useEffect.
+ *  2. Comentar todo o codigo em portugues.
+ *  3. Normalizar o nome das funções e variávei em um único idioma.
+ */
+
+
 import React, { Fragment } from 'react';
 import { useState } from 'react';
 
@@ -23,6 +29,18 @@ function App() {
 	
 
 	function getCoordinates(id: string){
+		// Retorna as coordenadas da matriz, que representam a posição selecionada no
+		// tabuleiro.
+
+		/*
+			Os ids variam de 1 à 64, logo, representam os 64 quadrados do tabuleiro.
+			
+			Para encontrar a linha que um id representa basta pegar o resto da divisão
+			do id por 8, resultando em um valor entre 0 e 7.
+
+			Para encontrar a Coluna, basta dividir o valor do id por 8 e subtrair 1
+			desse resultado. Resultando em um valor entre 0 e 7.
+		*/
 		const n = Number(id);
   	const row = Math.floor((n-1)/8);
   	const col = (n-1)%8;
@@ -30,21 +48,33 @@ function App() {
 		return [row, col];
 	}
 
-	function getState(id: string){
-		//Calcula as Coordenadas da Posição.
+	function getState(id: string, board: number[][]){
+		/*
+			Função Retorna o Estado atual de uma posição do tabuleiro.
+
+			Possíveis Estados:
+				0: Posição Vazia
+				1: Posição Ocupada por uma rainha
+				2: Posição está sob ataque de alguma rainha
+		*/
+		
 		const [row, col] = getCoordinates(id);
 
-		//Fetch State
-		const state = boardState[row][col];
+		const state = board[row][col];
 
-		//Return State
 		return state;
 	}
 
 	function updateBoardUI(id: string, action: string){
+		/*
+			A função atualiza a interface do tabuleiro, adicionando/removendo uma rainha.
+		*/
+		
+		// Seleciona o Elemento HTML responsável por aquela posição
 		let pos = document.getElementById(id);
 
-		if(action === 'add'){
+		// Adiciona/Remove a rainha daquela posição
+		if(action === 'add' && pos!.innerHTML !== '<img src='+queen+' alt="Queen"/>'){
 			pos!.innerHTML = '<img src='+queen+' alt="Queen"/>'
 		}
 		else if(action === 'remove'){
@@ -52,37 +82,50 @@ function App() {
 		}
 	}
 
-	function updateQueenList(id: string, action: string){
-		let temp = queenList;
+	function updateQueenList(id: string, action: string, queenList: string[]){
+		/*
+			Essa função controla as posições de cada rainha do tabuleiro.
+
+			Esse controle é importante, pois é com ele que se atualiza a matriz do tabuleiro,
+			permitindo determinar quais são as posições válidas para adicionar um nova rainha
+			(posição deve estar vazia, e não estar sob ataque de outra rainha).
+		*/
+
+		let newQueenList = queenList;
 
 		if(action === 'add'){
-			temp.push(id);
-			setQueenList(temp);
+			newQueenList.push(id);
+			//setQueenList(temp);
 		}
 		else if(action === 'remove'){
-			const index = temp.indexOf(id);
-			temp.splice(index, 1);
-			setQueenList(temp);
+			const index = newQueenList.indexOf(id);
+			newQueenList.splice(index, 1);
+			//setQueenList(temp);
 		}
+
+		return newQueenList;
 	}
 
-	function clearBoard(){
-		setBoardState(
-			[[0,0,0,0,0,0,0,0],
+	function newBoard(){
+		/*
+			retorna um novo tabuleiro.
+		*/
+
+		return [[0,0,0,0,0,0,0,0],
      [0,0,0,0,0,0,0,0],
      [0,0,0,0,0,0,0,0],
      [0,0,0,0,0,0,0,0],
      [0,0,0,0,0,0,0,0],
      [0,0,0,0,0,0,0,0],
      [0,0,0,0,0,0,0,0],
-     [0,0,0,0,0,0,0,0]]
-		);
+     [0,0,0,0,0,0,0,0]];
 	}
 
 	function rowAttack(row: number, col: number, tempBoard: number[][]){
-		//Percorre todas as Colunas do tabuleiro para a linha row
-		//caso a coluna seja diferente da que a peça está colocada, o valor é definido
-		//como 2.
+		/*
+			Dada a posição de uma peça, percorre a linha onde aquela peça está, alterando o
+			estado das posições que estão vazias para sob ataque.
+		*/
 
 		for(let i = 0; i <= 7; i++){
 			if(tempBoard[row][i] === 0)
@@ -91,8 +134,10 @@ function App() {
 	}
 
 	function colAttack(row: number, col: number, tempBoard: number[][]){
-		//Percorre todas as linha do tabuleiro para a coluna col
-		//caso aquela posição esteja marcada com 0, atualiza ela.
+		/*
+			Dada a posição de uma peça, percorre a coluna onde aquela peça está, alterando o
+			estado das posições que estão vazias para sob ataque.
+		*/
 
 		for(let i = 0; i <= 7; i++){
 			if(tempBoard[i][col] === 0){
@@ -107,6 +152,9 @@ function App() {
 			ld: left-down
 			ru: right-up
 			rd: right-down
+
+			Percorre as posições que estão na diagonal de uma dada peça, alterando as
+			posições com estado vazio para sob ataque.
 		*/
 
 		let row_lu = row - 1, col_lu = col - 1;
@@ -151,9 +199,14 @@ function App() {
 		}
 	}
 
-	function updateBoardState(){
-		clearBoard();
-		let tempBoard = boardState;
+	function updateBoardState(queenList: string[]){
+		/*
+		 * Atualiza o estado atual do tabuleiro, marcando quais posições estão ocupadas por
+			 peças e quais posições estão sob ataque. 
+		 */
+
+		
+		let tempBoard = newBoard();
 		
 		queenList.forEach(id => {
 			const [row, col] = getCoordinates(id);
@@ -164,18 +217,23 @@ function App() {
 			rowAttack(row, col, tempBoard);
 			diagAttack(row, col, tempBoard);
 
-			setBoardState(tempBoard);
+			//setBoardState(tempBoard);
 
 			//console.log(tempBoard);
 		})
+
+		return tempBoard;
 	}
 
 	function adicionaPeça(id: string){
 		updateBoardUI(id, 'add');
 
-		updateQueenList(id, 'add');
+		const newQueenList = updateQueenList(id, 'add', queenList);
+		setQueenList(newQueenList);
 
-		updateBoardState();
+		const newBoard = updateBoardState(queenList);
+		setBoardState(newBoard);
+
 
 		setQueensLeft(queensLeft - 1);
 	}
@@ -183,9 +241,11 @@ function App() {
 	function removePeça(id: string){
 		updateBoardUI(id, 'remove');
 
-		updateQueenList(id, 'remove');
+		const newQueenList = updateQueenList(id, 'remove', queenList);
+		setQueenList(newQueenList);
 
-		updateBoardState();
+		const newBoard = updateBoardState(queenList);
+		setBoardState(newBoard);
 
 		setQueensLeft(queensLeft + 1);
 
@@ -199,7 +259,7 @@ function App() {
 
 
 	function play(id: string){
-		const state = getState(id);
+		const state = getState(id, boardState);
 
 		if(state === 0 && queensLeft > 0)
 			adicionaPeça(id);
@@ -210,16 +270,19 @@ function App() {
 		else if(state === 2){
 			alerta();
 		}
-
-
-
 	}
 
 
 
 
   function newGame(){
-		clearBoard();
+		/*
+		 * Retorna todas as váriaveis para seus estados iniciais, e limpa todos os
+		 	 elementos visuais do tabuleiro.
+		 */
+
+		const board = newBoard();
+		setBoardState(board);
 
 		queenList.forEach(x => {
 			document.getElementById(x)!.innerHTML = '';
@@ -232,12 +295,17 @@ function App() {
   
 
 	function red(){
+		/*
+		 * Marca de Vermelho as posições ocupadas por peças e as posições sob ataque de
+			 alguma peça.
+		*/
+
 		let state = 0;
 		let id = '';
 
 		for(let i = 1; i <= 64; i++){
 			id = String(i);
-			state = getState(id);
+			state = getState(id, boardState);
 
 			if(state !== 0){
 				document.getElementById(id)!.style.backgroundColor = "red";
@@ -246,6 +314,10 @@ function App() {
 	}
 
   function cl(){
+		/**
+		 * Limpa os campos marcados por vermelho.
+		 */
+
 		let id = '';
 
 		for(let i = 1; i <= 64; i++){
@@ -254,9 +326,74 @@ function App() {
 		}
 	}
 
-	function logBoard(){
-		console.log(boardState);
+
+
+
+
+
+	function getEmptyPositions(board: number[][]){
+		let emptyPositions = [];
+		
+		for(let i = 1; i <= 64; i++){
+			let id = String(i);
+
+			if(getState(id, board) === 0){
+				emptyPositions.push(id);
+			}
+		}
+
+		return emptyPositions;
 	}
+
+	function solve(queenList: string[], queensLeft: number): [number, string[], number[][]]{
+		let currentQueenList = [...queenList]; // Copy the array by value, and not by reference.
+		let currentQueensLeft = queensLeft;
+		
+		let board = updateBoardState(currentQueenList); 
+
+		let emptyPositions = getEmptyPositions(board);
+
+		while(emptyPositions.length > 0){
+			// Extrai o id de uma posição.
+			let id = emptyPositions.pop();
+			
+			if(id){
+				//Joga a peça
+
+				let newQueenList = updateQueenList(id, 'add', currentQueenList);
+
+				let newBoard     = updateBoardState(newQueenList);
+
+				let newQueensLeft = currentQueensLeft - 1;
+
+				// console.log(newQueenList);
+				//console.log(emptyPositions)
+				// console.log(newQueensLeft);
+				//console.log(newBoard);
+				// console.log("\n\n\n");
+
+				if(newQueensLeft === 0){
+					return [1, newQueenList, newBoard];
+				}
+				else {
+					const result = solve(newQueenList, newQueensLeft);
+					
+					if(result[0] === 1) return result;
+					
+					newQueenList = updateQueenList(id, 'remove', newQueenList);
+
+				}
+			}
+		}
+
+		if(currentQueensLeft > 0){
+			return [0, currentQueenList, board];
+		}
+
+		return [0, [], [[]]];
+	}
+
+
 
 
 
@@ -269,7 +406,28 @@ function App() {
         <span>Peças Restantes: {queensLeft}</span>
         
         <button className="new-game" onClick={() => newGame()}>Novo Jogo</button>
-        <button className="solve" onClick={() => {logBoard()}}>Solucionar Jogo</button>
+        <button className="solve" onClick={async () => {
+					let j = solve(queenList, queensLeft)
+					
+					if(j[0] === 1){
+						newGame();
+						updateBoardState(j[1]);
+						for(let i = 0; i < 8; i++){
+							play(j[1][i]);
+						}
+
+						setQueensLeft(0);
+						setBoardState(j[2]);
+					}
+					
+
+					
+					
+					
+
+
+					
+					}}>Solucionar Jogo</button>
         <button className="solve" onClick={() => red()}>VERMELHO</button>
         <button className="solve" onClick={() => cl()}>CLEAR</button>
 		  </div>  
