@@ -1,11 +1,3 @@
-/**
- * TODO:
- * 	1. Implementar todas as atualizações de Estado utilizando useEffect.
- *  2. Comentar todo o codigo em portugues.
- *  3. Normalizar o nome das funções e variávei em um único idioma.
- */
-
-
 import React, { Fragment } from 'react';
 import { useState } from 'react';
 
@@ -259,6 +251,11 @@ function App() {
 
 
 	function play(id: string){
+		/*
+		 * Essa função é responsável por realizar o processo de uma jogada,
+		   Atualizando a interface e as variáveis responsáveis pelo funcionamento do jogo.
+		*/
+
 		const state = getState(id, boardState);
 
 		if(state === 0 && queensLeft > 0)
@@ -267,8 +264,12 @@ function App() {
 		else if(state === 1)
 			removePeça(id);
 
-		else if(state === 2){
+		else if(state === 2)
 			alerta();
+		
+
+		if(queensLeft === 0){
+			alert("Parabéns você conseguiu solucionar o problema das 8 rainhas!");
 		}
 	}
 
@@ -332,6 +333,11 @@ function App() {
 
 
 	function getEmptyPositions(board: number[][]){
+		/**
+		 * Retorna o conjunto de posições que estão vazias e que não estão sob ataque de
+		   nenhuma outra rainha.
+		 */
+
 		let emptyPositions = [];
 		
 		for(let i = 1; i <= 64; i++){
@@ -346,12 +352,22 @@ function App() {
 	}
 
 	function solve(queenList: string[], queensLeft: number): [number, string[], number[][]]{
-		let currentQueenList = [...queenList]; // Copy the array by value, and not by reference.
-		let currentQueensLeft = queensLeft;
+		/**
+		 * Dado o Estado atual do Tabuleiro, o algoritmo busca uma solução para o problema.
+		 */
 		
-		let board = updateBoardState(currentQueenList); 
 
+		/**
+		 * Copia a lista de posições das rainhas e a quantidade restante de rainhas a serem
+		   jogadas.
+
+		 * Cria um tabuleiro com o estado atual do jogo, e determina as posições vazias.	 
+		 */
+		let currentQueenList = [...queenList]; // O spread operator é utilizado para criar uma copia por valor, e não por referência, do aray.
+		let currentQueensLeft = queensLeft;
+		let board = updateBoardState(currentQueenList); 
 		let emptyPositions = getEmptyPositions(board);
+
 
 		while(emptyPositions.length > 0){
 			// Extrai o id de uma posição.
@@ -359,18 +375,10 @@ function App() {
 			
 			if(id){
 				//Joga a peça
-
 				let newQueenList = updateQueenList(id, 'add', currentQueenList);
-
 				let newBoard     = updateBoardState(newQueenList);
-
 				let newQueensLeft = currentQueensLeft - 1;
 
-				// console.log(newQueenList);
-				//console.log(emptyPositions)
-				// console.log(newQueensLeft);
-				//console.log(newBoard);
-				// console.log("\n\n\n");
 
 				if(newQueensLeft === 0){
 					return [1, newQueenList, newBoard];
@@ -418,6 +426,10 @@ function App() {
 
 						setQueensLeft(0);
 						setBoardState(j[2]);
+						alert("Uma Solução foi encontrada!");
+					}
+					else if(j[0] === 0){
+						alert("Dado o estado atual do jogo, não foi possível encontrar uma solução!");
 					}
 					
 
