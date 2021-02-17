@@ -1,0 +1,21 @@
+{
+  "files": {
+    "main.css": "/8-queens-problem/static/css/main.6045db7e.chunk.css",
+    "main.js": "/8-queens-problem/static/js/main.c9eed9d5.chunk.js",
+    "main.js.map": "/8-queens-problem/static/js/main.c9eed9d5.chunk.js.map",
+    "runtime-main.js": "/8-queens-problem/static/js/runtime-main.3e29625a.js",
+    "runtime-main.js.map": "/8-queens-problem/static/js/runtime-main.3e29625a.js.map",
+    "static/js/2.b156dbda.chunk.js": "/8-queens-problem/static/js/2.b156dbda.chunk.js",
+    "static/js/2.b156dbda.chunk.js.map": "/8-queens-problem/static/js/2.b156dbda.chunk.js.map",
+    "index.html": "/8-queens-problem/index.html",
+    "static/css/main.6045db7e.chunk.css.map": "/8-queens-problem/static/css/main.6045db7e.chunk.css.map",
+    "static/js/2.b156dbda.chunk.js.LICENSE.txt": "/8-queens-problem/static/js/2.b156dbda.chunk.js.LICENSE.txt",
+    "static/media/chess_queen.6603a7d6.svg": "/8-queens-problem/static/media/chess_queen.6603a7d6.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.3e29625a.js",
+    "static/js/2.b156dbda.chunk.js",
+    "static/css/main.6045db7e.chunk.css",
+    "static/js/main.c9eed9d5.chunk.js"
+  ]
+}
