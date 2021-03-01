@@ -15,7 +15,9 @@ html, body, #root, .App {
 
 
 
-
+.icon{
+	margin-left: 10px;
+}
 
 .ui{
 	width: 100%;
@@ -43,6 +45,10 @@ button{
 
 	background-color: gray;
 	color:white;
+}
+
+.bIcon{
+	background-color: unset;
 }
 
 .solve{

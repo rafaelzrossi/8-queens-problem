@@ -1,14 +1,22 @@
 import { clear } from 'console';
 import React, { Fragment, useRef, useState } from 'react';
+import { MdError } from 'react-icons/md'
 
 
 import './App.css';
 import queen from './images/chess_queen.svg'
 
 function App() {
-	
+
 	const [displayQueensLeft, setDisplayQueensLeft] = useState<number>(8);
 
+	// Variáveis de Controle do Jogo.
+	// queensLeft - Determina o número de rainhas disponíveis para serem posicionadas.
+	// queensList - Armazena as posições onde estão as rainhas do tabuleiro
+	// boardState - Estado atual do tabuleiro
+		// 0 - Indica posição livre
+		// 1 - Indica posição ocupada
+		// 2 - Indica posicao sob ataque
 	let queensLeft = useRef(8);
 	let queenList = useRef<string[]>([])
 	let boardState = useRef([[0,0,0,0,0,0,0,0],
@@ -20,8 +28,9 @@ function App() {
 													 [0,0,0,0,0,0,0,0],
 													 [0,0,0,0,0,0,0,0]])
 
+													 
 	function getCoordinates(id: string){
-		// Calcula a posição do ID na matriz de estados.
+		// Converte o id de referencia da posição para as coordenadas da matriz
 		const parsedID = Number(id);
   	const row = Math.floor((parsedID-1)/8);
   	const col = (parsedID-1)%8;
@@ -30,12 +39,15 @@ function App() {
 	}
 
 	function getBoardState(id: string, board: number[][]){
+		// Retorna o Estado (0-2) da posição informada para um dado tabuleiro
 		const [row, col] = getCoordinates(id);
 
 		return board[row][col];
 	}
 
 	function updateBoardUI(id: string){
+		// Atualiza o tabuleiro adicionando/removendo peças
+		
 		const htmlElement = document.getElementById(id);
 
 		if(htmlElement){
@@ -129,6 +141,9 @@ function App() {
 	}
 
 	function updateBoardState(queenList: string[]){
+		// Dada uma lista de posições de rainhas, atualiza o tabuleiro.
+		// Marcando as posições livre, ocupadas e sob ataque
+		
 		let [row, col] = [0, 0];
 		let board = [[0,0,0,0,0,0,0,0],
 						 [0,0,0,0,0,0,0,0],
@@ -153,6 +168,10 @@ function App() {
 	}
 
 	function updateQueenList(id: string, queenList: string[], action: string){
+		// Dada uma posição do tabuleiro, atualiza a lista de rainhas:
+		// Adicionando caso a posição esteja livre.
+		// Removendo caso a posição esteja ocupada.
+	
 		if(action === 'add'){
 			queenList.push(id);
 		} 
@@ -163,6 +182,10 @@ function App() {
 	}
 
 	function addPiece(id: string, board: number[][]){
+		// realiza o processo de adicionar uma peça no tabuleiro
+
+
+
 		updateBoardUI(id);
 
 		queensLeft.current--;
@@ -177,6 +200,9 @@ function App() {
 	}
 
 	function removePiece(id: string, board: number[][]){
+		// Realiza o processo de remover uma peça do tabuleiro
+
+		
 		updateBoardUI(id);
 
 		queensLeft.current++;
@@ -192,6 +218,13 @@ function App() {
 
 
 	function play(id: string, player: number){
+		// Dada uma posição realiza o ato de jogar, podendo:
+		// Adicionar uma peça na posição
+		// Remover uma peça da posição
+		// Receber um aleta de que a posição está sob ataque
+
+		//player informa se o movimento foi realizado por um jogador (1), ou pelo algoritmo de solução(0)
+		
 		let state = getBoardState(id, boardState.current);
 
 		if(state === 0){
@@ -341,6 +374,8 @@ function App() {
 
 
 
+
+	// Abaixo segue o código da interface
   return (
     <Fragment>
       
@@ -375,6 +410,17 @@ function App() {
 				}}>Solucionar Jogo</button>
         <button className="solve" onClick={() => red()}>Posições Válidas</button>
         <button className="solve" onClick={() => clean()}>Limpar</button>
+				<div className="icon">
+					<button className="bIcon" disabled 
+					title="
+								Novo Jogo - Cria um novo tabuleiro para jogar
+					      Solucionar Jogo - Dado o Estado Atual do Tabuleiro, Busca uma solução para o problema
+								Posições Válidas - Marca as posições que são inválidas para colocar uma peça
+								Limpar - Limpa as marcações do tabuleiro">
+						<MdError className="icon" color='black' size={30}/>
+					</button>
+				</div>
+
 		  </div>  
 
       <div className="content">
