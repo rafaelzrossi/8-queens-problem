@@ -1,7 +1,13 @@
-# JOGAR:
+# PLAY:
 
 https://rafaelzrossi.github.io/8-queens-problem/
 
+# Instruction to Run Locally:
+
+1. Download and Install Node (https://nodejs.org/en/download/)
+2. Open Terminal on project folder and run the following commands:
+2.1 "npm install" - This will download the project dependencies
+2.2 "npm start" - This will run the project server and open the project on your default browser
 
 
 # Getting Started with Create React App
